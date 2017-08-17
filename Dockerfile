@@ -23,7 +23,35 @@ RUN \
 	avahi-daemon \
 	dbus \
 	unrar \
-	wget && \
+	wget \
+
+# Custom packages for ComSkip
+	python3 \
+	git \
+	build-essential \
+	libargtable2-dev \
+	autoconf \
+	libtool-bin \
+	ffmpeg \
+	libsdl1.2-dev \
+	libavutil-dev \
+	libavformat-dev \
+	libavcodec-dev && \
+
+# Clone Comskip
+	cd /opt && \
+	git clone git://github.com/erikkaashoek/Comskip && \
+	cd Comskip && \
+	./autogen.sh && \
+	./configure && \
+	make && \
+
+# Clone PlexComskip
+	cd /opt && \
+	git clone https://github.com/ekim1337/PlexComskip.git && \
+	chmod -R 777 /opt/ /tmp/ /root/ && \
+	touch /var/log/PlexComskip.log && \
+	chmod 777 /var/log/PlexComskip.log && \
 
 # install plex
  curl -o \
@@ -35,8 +63,9 @@ RUN \
  usermod -d /app abc && \
 
 # cleanup
- apt-get clean && \
- rm -rf \
+apt-get -y autoremove && \
+apt-get -y clean && \
+rm -rf \
 	/etc/default/plexmediaserver \
 	/tmp/* \
 	/var/lib/apt/lists/* \
@@ -44,6 +73,8 @@ RUN \
 
 # add local files
 COPY root/ /
+
+ADD ./PlexComskip.conf /opt/PlexComskip/PlexComskip.conf
 
 # ports and volumes
 EXPOSE 32400 32400/udp 32469 32469/udp 5353/udp 1900/udp
